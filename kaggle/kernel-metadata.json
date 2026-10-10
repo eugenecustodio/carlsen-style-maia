@@ -1,0 +1,18 @@
+{
+  "id": "jakenorton23/carlsen-bot-runner",
+  "title": "Carlsen Bot Runner",
+  "code_file": "carlsen-bot-runner.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "machine_shape": "",
+  "dataset_sources": [
+    "jakenorton23/carlsen-bot-token"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
