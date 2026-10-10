@@ -3,8 +3,8 @@
     python make_config.py /lichess-bot/config.yml.default /lichess-bot/config.yml [--engine-dir DIR] [--fast]
 
 Default profile: a slow free host (Render free: 0.1 CPU) -> 3+0 and slower, one game at a time.
---fast: a full CPU core or more (Kaggle, a laptop) -> bullet too, two games at once, and finish
-running games before quitting (for hosts with a session time limit).
+--fast: a full CPU core or more (Kaggle, a laptop) -> bullet too, two games at once (one slot kept for
+human challengers), and finish running games before quitting (for hosts with a session time limit).
 
 The token is NOT written here: lichess-bot reads it from the LICHESS_BOT_TOKEN environment variable.
 """
@@ -67,7 +67,11 @@ FAST = {
     'move_overhead': 1500,
     'quit_after_all_games_finish': True,      # on shutdown, finish games in progress first
     'challenge': {'concurrency': 2, 'min_base': 60,
-                  'time_controls': ['bullet', 'blitz', 'rapid', 'classical']},
+                  'time_controls': ['bullet', 'blitz', 'rapid', 'classical'],
+                  'games_reserved_for_humans': 1,   # bots can fill only 1 of the 2 slots: a human can always play
+                  'preference': 'human',            # humans jump ahead of bots in the challenge queue
+                  'recent_bot_challenge_age': 60,   # and one bot can't re-challenge more than twice a minute
+                  'max_recent_bot_challenges': 2},
 }
 
 
