@@ -182,8 +182,10 @@ def main():
     serve(ThreadingHTTPServer(('0.0.0.0', PORT), PublicHandler))         # Render needs the port open quickly
     log(f'status page on :{PORT}; loading model ...')
     t = time.time()
-    ModelHandler.model = carlsen_core.CarlsenModel(threads=int(os.environ.get('CARLSEN_THREADS', '1')))
-    log(f'model loaded in {time.time() - t:.1f}s')
+    ModelHandler.model = carlsen_core.load_model(int(os.environ.get('CARLSEN_THREADS', '1')),
+                                                 os.environ.get('STOCKFISH', '/usr/games/stockfish'),
+                                                 os.environ.get('CARLSEN_MODEL', 'r4'))
+    log(f'model loaded in {time.time() - t:.1f}s: {carlsen_core.model_name(ModelHandler.model)}')
     serve(ThreadingHTTPServer(('127.0.0.1', MODEL_PORT), ModelHandler))
     threading.Thread(target=keepalive, daemon=True).start()
     supervise_bot()

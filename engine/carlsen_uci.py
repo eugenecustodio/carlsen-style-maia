@@ -7,7 +7,8 @@ Two modes:
   server.py does the thinking. This script then uses only the standard library and starts
   instantly, which matters on a slow free host where loading the model takes many seconds.
 
-Options: CarlsenStyle (auto picks classical/rapid/blitz/bullet from the game clock), OppoElo,
+Options: Model (r4 = R2 + Stockfish-guided re-ranker, needs Stockfish 16; r2 = the network alone),
+CarlsenStyle (auto picks classical/rapid/blitz/bullet from the game clock), OppoElo,
 Temperature (hundredths; 0 = his single most likely move), TopP (percent), MultiPV,
 StockfishFilter (+ StockfishPath, StockfishDepth), Threads, UCI_Opponent (sent by lichess-bot).
 """
@@ -19,6 +20,7 @@ import urllib.request
 NAME = 'Carlsen-Maia3'
 AUTHOR = 'Maia-3 (CSSLab, AGPL-3.0) fine-tuned on Carlsen games'
 SPEC = {  # name: (type, default, extra)
+    'Model': ('combo', 'r4', 'var r4 var r2'),
     'CarlsenStyle': ('combo', 'auto', 'var auto var any var classical var rapid var blitz var bullet'),
     'OppoElo': ('spin', 2700, 'min 600 max 3300'),
     'Temperature': ('spin', 0, 'min 0 max 200'),
@@ -51,11 +53,16 @@ class Engine:
 
     # ---- the model, loaded only in local mode ----
     def load_local(self):
+        if self.model is not None and getattr(self, 'model_kind', None) != self.opts['Model']:
+            if hasattr(self.model, 'close'):
+                self.model.close()
+            self.model = None                       # Model option changed: load the other one
         if self.model is None:
             sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
             import carlsen_core
             self.core = carlsen_core
-            self.model = carlsen_core.CarlsenModel(threads=self.opts['Threads'])
+            self.model = carlsen_core.load_model(self.opts['Threads'], self.opts['StockfishPath'], self.opts['Model'])
+            self.model_kind = self.opts['Model']
         if self.opts['StockfishFilter'] and self.sf is None:
             self.sf = self.core.StockfishFilter(self.opts['StockfishPath'], int(self.opts['StockfishDepth']))
         if not self.opts['StockfishFilter'] and self.sf is not None:
@@ -179,6 +186,8 @@ class Engine:
                 break
         if self.sf is not None:
             self.sf.close()
+        if self.model is not None and hasattr(self.model, 'close'):
+            self.model.close()
 
 
 if __name__ == '__main__':

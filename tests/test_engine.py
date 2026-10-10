@@ -111,3 +111,27 @@ def test_stockfish_filter_local():
         assert not board.is_checkmate(), f'filter allowed {reply} mate after {move}'
         board.pop()
     eng.quit()
+
+
+R4_DIR = os.environ.get('TEST_R4_DIR')       # a folder with r4-prior.onnx + r4-reranker.onnx
+
+
+@pytest.mark.skipif(not (R4_DIR and Path('/usr/games/stockfish').exists()), reason='set TEST_R4_DIR to test R4')
+def test_r4_local_mode_plays_legal_moves():
+    env = dict(os.environ, CARLSEN_R4_DIR=R4_DIR)
+    env.pop('CARLSEN_SERVER', None)
+    eng = chess.engine.SimpleEngine.popen_uci(ENGINE, env=env, timeout=60)
+    board = chess.Board()
+    names = set()
+    with eng.analysis(board, chess.engine.Limit(time=0.5)) as an:
+        for info in an:
+            if 'string' in info:
+                names.add(info['string'])
+    assert any(n.startswith('R4') for n in names), names
+    for _ in range(16):
+        move = eng.play(board, chess.engine.Limit(white_clock=120, black_clock=120)).move
+        assert move in board.legal_moves
+        board.push(move)
+    eng.configure({'Model': 'r2'})               # switching back to the network alone works too
+    assert eng.play(board, chess.engine.Limit(time=0.1)).move in board.legal_moves
+    eng.quit()

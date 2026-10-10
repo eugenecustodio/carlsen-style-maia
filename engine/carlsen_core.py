@@ -7,6 +7,7 @@ games). Its Elo input takes either a rating or a Carlsen style code:
 This is an imitation of Carlsen's move choices, not Magnus Carlsen.
 """
 import math
+import os
 import random
 import threading
 from pathlib import Path
@@ -16,6 +17,7 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 MODEL_PATH = HERE / 'maia3-carlsen.onnx'
+R4_DIR = Path(os.environ.get('CARLSEN_R4_DIR', HERE))      # r4-prior.onnx + r4-reranker.onnx
 HISTORY = 8
 # Every from-to square pair, then white promotions from the seventh rank. The board is
 # mirrored when Black moves, so Black's moves use the same entries.
@@ -91,7 +93,7 @@ class CarlsenModel:
         feed = {'tokens': encode(board), 'elo_self': np.array([elo_self], np.float32),
                 'elo_oppo': np.array([float(oppo_elo)], np.float32)}
         with self.lock:
-            logits, value = self.session.run(None, feed)
+            logits, value = self.session.run(['logits_move', 'logits_value'], feed)
         scores = np.array([logits[0, move_index(board, m)] for m in legal], np.float64)
         p = np.exp(scores - scores.max())
         p /= p.sum()
@@ -99,6 +101,18 @@ class CarlsenModel:
         loss, draw, win = (v / v.sum()).tolist()                     # value head order: [loss, draw, win]
         order = np.argsort(-p, kind='stable')
         return [(legal[i], float(p[i])) for i in order], (win, draw, loss)
+
+
+def load_model(threads=1, stockfish='/usr/games/stockfish', prefer='r4'):
+    """R4 (R2 + Stockfish-guided re-ranker) when its files and Stockfish are available, else R2."""
+    import r4
+    if prefer == 'r4' and r4.files_present(R4_DIR) and stockfish and Path(stockfish).exists():
+        return r4.R4(R4_DIR, stockfish, threads)
+    return CarlsenModel(threads=threads)
+
+
+def model_name(model):
+    return 'R4 (R2 + Stockfish re-ranker)' if type(model).__name__ == 'R4' else 'R2'
 
 
 def sample(ranked, temperature=0.0, top_p=1.0, rng=random):
@@ -161,7 +175,7 @@ def think(model, fen, moves, options, style_clock=None, oppo_elo=None, multipv=1
     cp = expected_to_cp(win + 0.5 * draw)
     wdl = [int(round(1000 * x)) for x in (win, draw, loss)]
     wdl[1] = 1000 - wdl[0] - wdl[2]
-    infos = [f'info string Carlsen style {style}, opponent Elo {int(oppo_elo)}']
+    infos = [f'info string {model_name(model)}, Carlsen style {style}, opponent Elo {int(oppo_elo)}']
     for k, (move, p) in enumerate(ranked[:max(1, multipv)], 1):
         infos.append(f'info depth 1 seldepth 1 multipv {k} score cp {cp} wdl {wdl[0]} {wdl[1]} {wdl[2]} '
                      f'nodes 1 nps 1 time 1 pv {move.uci()} string p={p:.3f}')
