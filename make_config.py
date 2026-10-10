@@ -45,7 +45,7 @@ OVERRIDES = {
         'modes': ['casual', 'rated'],
     },
     'greeting': {
-        'hello': "Hi! I'm {me}, a Maia-3 model fine-tuned on Magnus Carlsen's games. I imitate his move choices; I am not Magnus Carlsen. Good luck!",
+        'hello': 'Are your ready to get crushed, Yumemi?',
         'goodbye': 'Good game!',
         'hello_spectators': "Hi! I'm {me}, an AI imitating Magnus Carlsen's move choices (not Magnus himself).",
         'goodbye_spectators': 'Thanks for watching!',
