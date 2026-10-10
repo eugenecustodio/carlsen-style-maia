@@ -38,7 +38,14 @@ opponent or as the analysis engine (set `MultiPV` 3 to see his top candidates).
 | `StockfishPath`, `StockfishDepth` | `/usr/games/stockfish`, 12 | For the filter |
 | `Threads` | 1 | CPU threads for the model (local mode) |
 
-## Run it as a Lichess bot on Render (free)
+## Run it as a Lichess bot on Kaggle (free, no card)
+
+`kaggle/` holds a CPU notebook that downloads this repository and runs the bot for about 11.5 hours.
+Before Kaggle's 12-hour session limit, it stops taking new challenges, finishes games in progress and exits.
+Relaunch it with `kaggle kernels push -p kaggle/` (or from the notebook page: Save Version → Save & Run All).
+The token comes from a **private** Kaggle dataset containing `token.txt`, never from this repository.
+
+## Run it as a Lichess bot on Render (needs a card on file)
 
 **What "free" means here.** Render's free web service has 0.1 CPU and 512 MB RAM, enough for this
 model at about 1 second per move. It sleeps after 15 minutes without incoming traffic, so

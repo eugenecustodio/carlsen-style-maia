@@ -1,10 +1,14 @@
 """Build lichess-bot's config.yml from its own config.yml.default plus this bot's settings.
 
-    python make_config.py /lichess-bot/config.yml.default /lichess-bot/config.yml
+    python make_config.py /lichess-bot/config.yml.default /lichess-bot/config.yml [--engine-dir DIR] [--fast]
+
+Default profile: a slow free host (Render free: 0.1 CPU) -> 3+0 and slower, one game at a time.
+--fast: a full CPU core or more (Kaggle, a laptop) -> bullet too, two games at once, and finish
+running games before quitting (for hosts with a session time limit).
 
 The token is NOT written here: lichess-bot reads it from the LICHESS_BOT_TOKEN environment variable.
 """
-import sys
+import argparse
 
 import yaml
 
@@ -59,10 +63,26 @@ def merge(base, extra):
     return base
 
 
+FAST = {
+    'move_overhead': 1500,
+    'quit_after_all_games_finish': True,      # on shutdown, finish games in progress first
+    'challenge': {'concurrency': 2, 'min_base': 60,
+                  'time_controls': ['bullet', 'blitz', 'rapid', 'classical']},
+}
+
+
 if __name__ == '__main__':
-    src, dst = sys.argv[1], sys.argv[2]
-    config = yaml.safe_load(open(src))
+    ap = argparse.ArgumentParser()
+    ap.add_argument('src')
+    ap.add_argument('dst')
+    ap.add_argument('--engine-dir', default=ENGINE_DIR)
+    ap.add_argument('--fast', action='store_true')
+    args = ap.parse_args()
+    config = yaml.safe_load(open(args.src))
     config['engine']['uci_options'] = {}      # drop the Stockfish-style defaults (Threads, Hash, ...)
     merge(config, OVERRIDES)
-    yaml.safe_dump(config, open(dst, 'w'), sort_keys=False)
-    print(f'wrote {dst}')
+    if args.fast:
+        merge(config, FAST)
+    config['engine']['dir'] = config['engine']['working_dir'] = args.engine_dir
+    yaml.safe_dump(config, open(args.dst, 'w'), sort_keys=False)
+    print(f"wrote {args.dst} ({'fast' if args.fast else 'free-tier'} profile, engine in {args.engine_dir})")
