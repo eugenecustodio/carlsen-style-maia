@@ -16,7 +16,9 @@ import chess
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-MODEL_PATH = HERE / 'maia3-carlsen.onnx'
+# R4's prior (r4-prior.onnx) is R2's network with its hidden state exposed; once present, R2's own file
+# (maia3-carlsen.onnx) is not needed, and the network-only fallback ("r2" mode) loads the prior.
+MODEL_PATH = HERE / 'r4-prior.onnx' if (HERE / 'r4-prior.onnx').exists() else HERE / 'maia3-carlsen.onnx'
 R4_DIR = Path(os.environ.get('CARLSEN_R4_DIR', HERE))      # r4-prior.onnx + r4-reranker.onnx
 HISTORY = 8
 # Every from-to square pair, then white promotions from the seventh rank. The board is
