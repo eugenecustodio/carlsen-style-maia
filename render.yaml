@@ -1,0 +1,17 @@
+# Render Blueprint: one FREE web service (0.1 CPU, 512 MB). Free web services sleep after 15 minutes
+# without inbound traffic; server.py pings its own URL every 10 minutes to stay awake.
+services:
+  - type: web
+    name: carlsen-maia-bot
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: LICHESS_BOT_TOKEN      # your Lichess BOT account token (scope bot:play); entered in the dashboard
+        sync: false
+      - key: LICHESS_BOT_NAME       # the bot's Lichess username, shown on the status page
+        sync: false
+      - key: KEEPALIVE
+        value: "1"
