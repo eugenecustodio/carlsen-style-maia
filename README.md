@@ -80,3 +80,7 @@ For uninterrupted play, switch `plan: free` to `plan: starter` in `render.yaml` 
 
 AGPL-3.0 (Maia-3 and lichess-bot are AGPL-3.0). If you run this as a public bot, keep this source
 code publicly available.
+
+## R4 (current model)
+
+R2's network proposes its top 12 moves, Stockfish 16 scores them (depth 10), and a small re-ranker trained on Carlsen's games picks the move ("Matilda", arXiv 2606.25176). On the untouched test set (37767 Carlsen moves from games after 1 July 2025): **R4 top-1 63.7%** vs R2 60.2% (gain +3.5%, 95% CI +3.1% to +3.8%); NLL 1.045300006866455 vs 1.156599998474121. R4 needs Stockfish 16 at play time (`StockfishPath`); without it the engine falls back to R2's network.

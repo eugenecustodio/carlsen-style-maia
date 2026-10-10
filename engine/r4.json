@@ -1,0 +1,82 @@
+{
+  "model": "R4: Matilda-style Stockfish re-ranker (arXiv 2606.25176) on the frozen R2 prior",
+  "files": {
+    "r4-prior.onnx": "87b7d1d7cc2a878d22a27d9afa7643af05dfbac9571e3e88c1cb27d6462f2f01",
+    "r4-reranker.onnx": "e8de49f4feb893d0ca8269cf967119827329bd297373bdfcfee78f5a11a27ddc"
+  },
+  "stockfish": "Stockfish 16, bench 2593605, depth 10, top-12",
+  "test_decision": {
+    "test_positions": 37767,
+    "test_games": 782,
+    "r2": {
+      "top1": 0.6021,
+      "top3": 0.8816,
+      "nll": 1.156599998474121
+    },
+    "r4": {
+      "top1": 0.6369,
+      "top3": 0.9009,
+      "nll": 1.045300006866455
+    },
+    "top1_gain": 0.0347,
+    "top1_gain_ci95_by_game": [
+      0.0313,
+      0.0382
+    ],
+    "nll_change": -0.11129999905824661,
+    "nll_change_ci95_by_game": [
+      -0.1169,
+      -0.1053
+    ],
+    "rule_nll_lower": true,
+    "rule_top1_higher_significant": true,
+    "verdict": "R4"
+  },
+  "val": {
+    "top1": 0.6418,
+    "top3": 0.9014,
+    "nll": 1.0346,
+    "top1_by_tc": {
+      "classical": 0.6416,
+      "rapid": 0.646,
+      "blitz": 0.6414,
+      "bullet": 0.6252,
+      "blindfold": 0.6384,
+      "unknown": 0.6324
+    }
+  },
+  "kaggle_test": {
+    "n": 37767,
+    "target_in_candidates": 0.9956,
+    "r2": {
+      "top1": 0.6019,
+      "top3": 0.8819,
+      "nll": 1.1566,
+      "top1_by_tc": {
+        "classical": 0.5666,
+        "rapid": 0.5943,
+        "blitz": 0.6044
+      }
+    },
+    "r4": {
+      "top1": 0.6369,
+      "top3": 0.9011,
+      "nll": 1.0453,
+      "top1_by_tc": {
+        "classical": 0.6361,
+        "rapid": 0.644,
+        "blitz": 0.6359
+      }
+    },
+    "plain": {
+      "top1": 0.5961,
+      "top3": 0.8734,
+      "nll": 1.1614,
+      "top1_by_tc": {
+        "classical": 0.5595,
+        "rapid": 0.5842,
+        "blitz": 0.5993
+      }
+    }
+  }
+}
