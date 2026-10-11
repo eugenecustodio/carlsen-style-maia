@@ -25,13 +25,34 @@ calculate. Turn on `StockfishFilter` for a stronger "Carlsen + safety net" mode.
 Edit → Engines → **New** → choose `carlsen-engine.sh` → protocol **UCI**. Then use it as an
 opponent or as the analysis engine (set `MultiPV` 3 to see his top candidates).
 
+## Two ways to play: best day or Carlsen feel
+
+The model is the same in both; `Temperature` only changes how it picks from its Carlsen probabilities.
+
+| | **Temperature 0: "Magnus Carlsen on his best day"** (default) | **Temperature 115, TopP 85: "Magnus Carlsen feel"** |
+|---|---|---|
+| How it picks | Always his single most likely move | Samples his moves as often as he plays them |
+| Plays his exact move | **63.7%** (the highest possible) | 55.1% |
+| Plays Stockfish's #1 move (Carlsen: 50.9%) | 59.9%: cleaner than him | **52.0%**: like him |
+| Mistakes losing > 10% win chance (Carlsen: 2.0%) | 1.2%: half of his | **2.5%**: close to his |
+| Same position, same move? | Always | Varies, as he does |
+| Head-to-head, 10 games | **Won 8-2** | Lost 2-8 |
+| Use it for | The strongest Carlsen-style opponent; predicting his move (ChessLens arrows) | A game that feels like playing the human Carlsen |
+
+Measured on 37,767 of Carlsen's moves from games after 1 July 2025 that the model never saw
+(tuning details in the training project's `runs/temperature-tuning/`). Always taking his most likely move
+filters out his occasional errors, so Temperature 0 plays like Carlsen on his best day, every day. Sampling
+brings back his variety and his human imperfections, which also lowers the per-move match: any randomness must.
+The Lichess bot and ChessLens use Temperature 0. To play the Carlsen feel in PyChess, set `Temperature` to 115
+in the engine's options (`TopP` is already 85).
+
 ## UCI options
 
 | Option | Default | Meaning |
 |---|---|---|
 | `CarlsenStyle` | `auto` | `auto` picks classical/rapid/blitz/bullet Carlsen from the game clock; or fix one; `any` = average Carlsen |
-| `Temperature` | 115 | In hundredths. 115 (with TopP 85) = human-like: plays Stockfish's top move about as often as Carlsen (52% vs his 51% in his games since July 2025). 0 = always his single most likely move (stronger, more engine-like: 60%) |
-| `TopP` | 85 | Percent; with Temperature > 0, sample only from the top moves covering this probability |
+| `Temperature` | 0 | In hundredths. **0 = "Magnus Carlsen on his best day"** (used by the Lichess bot and ChessLens). **115 = "Magnus Carlsen feel"** (human-like). See [Two ways to play](#two-ways-to-play-best-day-or-carlsen-feel) |
+| `TopP` | 85 | Percent; with Temperature > 0, sample only from the top moves covering this probability. 85 is tuned for Temperature 115 |
 | `MultiPV` | 1 | Number of candidate moves shown |
 | `OppoElo` | 2700 | Opponent rating (lichess-bot sends the real one automatically) |
 | `StockfishFilter` | false | Veto model moves that lose > 4% expected score vs Stockfish (needs Stockfish) |

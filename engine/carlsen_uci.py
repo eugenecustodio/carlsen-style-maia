@@ -9,7 +9,8 @@ Two modes:
 
 Options: Model (r4 = R2 + Stockfish-guided re-ranker, needs Stockfish 16; r2 = the network alone),
 CarlsenStyle (auto picks classical/rapid/blitz/bullet from the game clock), OppoElo,
-Temperature (hundredths; default 115 = human-like, 0 = his single most likely move), TopP (percent, default 85), MultiPV,
+Temperature (hundredths; default 0 = "Magnus Carlsen on his best day", 115 = "Magnus Carlsen feel"),
+TopP (percent, default 85), MultiPV,
 StockfishFilter (+ StockfishPath, StockfishDepth), Threads, UCI_Opponent (sent by lichess-bot).
 """
 import json
@@ -23,9 +24,11 @@ SPEC = {  # name: (type, default, extra)
     'Model': ('combo', 'r4', 'var r4 var r2'),
     'CarlsenStyle': ('combo', 'auto', 'var auto var any var classical var rapid var blitz var bullet'),
     'OppoElo': ('spin', 2700, 'min 600 max 3300'),
-    # 115/85: plays Stockfish's #1 move about as often as Carlsen does (52% vs his 51% on his games
-    # since 2025-07); 0 = always his single most likely move (stronger, more engine-like, 60%).
-    'Temperature': ('spin', 115, 'min 0 max 200'),
+    # 0 (default) = "Magnus Carlsen on his best day": always his single most likely move (63.7% his exact
+    # move, never an off-move, stronger). 115 with TopP 85 = "Magnus Carlsen feel": plays Stockfish's #1
+    # move about as often as he does (52% vs his 51%), varied and human-like, but weaker (lost 2-8 to 0).
+    # TopP 85 is the default so that setting Temperature 115 alone gives the tuned feel.
+    'Temperature': ('spin', 0, 'min 0 max 200'),
     'TopP': ('spin', 85, 'min 1 max 100'),
     'MultiPV': ('spin', 1, 'min 1 max 10'),
     'StockfishFilter': ('check', False, ''),
