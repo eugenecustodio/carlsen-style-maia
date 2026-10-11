@@ -30,8 +30,8 @@ opponent or as the analysis engine (set `MultiPV` 3 to see his top candidates).
 | Option | Default | Meaning |
 |---|---|---|
 | `CarlsenStyle` | `auto` | `auto` picks classical/rapid/blitz/bullet Carlsen from the game clock; or fix one; `any` = average Carlsen |
-| `Temperature` | 0 | In hundredths. 0 = his single most likely move; 30–70 = varied, human-like play |
-| `TopP` | 100 | Percent; with Temperature > 0, sample only from the top moves covering this probability |
+| `Temperature` | 115 | In hundredths. 115 (with TopP 85) = human-like: plays Stockfish's top move about as often as Carlsen (52% vs his 51% in his games since July 2025). 0 = always his single most likely move (stronger, more engine-like: 60%) |
+| `TopP` | 85 | Percent; with Temperature > 0, sample only from the top moves covering this probability |
 | `MultiPV` | 1 | Number of candidate moves shown |
 | `OppoElo` | 2700 | Opponent rating (lichess-bot sends the real one automatically) |
 | `StockfishFilter` | false | Veto model moves that lose > 4% expected score vs Stockfish (needs Stockfish) |

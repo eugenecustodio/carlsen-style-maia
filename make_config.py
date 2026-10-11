@@ -30,7 +30,7 @@ OVERRIDES = {
                          'online_egtb': {'enabled': False}},
         'lichess_bot_tbs': {'syzygy': {'enabled': False}, 'gaviota': {'enabled': False}},
         # Only options this engine declares (python-chess rejects unknown ones).
-        'uci_options': {'CarlsenStyle': 'auto', 'Temperature': 0, 'TopP': 100, 'MultiPV': 1,
+        'uci_options': {'CarlsenStyle': 'auto', 'Temperature': 115, 'TopP': 85, 'MultiPV': 1,
                         'StockfishFilter': False},
     },
     'move_overhead': 3000,                    # free host = slow CPU: keep a 3 s safety margin on the clock
